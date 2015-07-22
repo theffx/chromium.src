@@ -130,7 +130,7 @@ bool UserScriptInjector::ShouldExecuteInChildFrames() const {
 }
 
 bool UserScriptInjector::ShouldExecuteInMainWorld() const {
-  return false;
+  return script_->in_main_world();
 }
 
 bool UserScriptInjector::IsUserGesture() const {

@@ -154,6 +154,10 @@ void ExtensionHelper::DidCreateDocumentElement(WebLocalFrame* frame) {
   dispatcher_->DidCreateDocumentElement(frame);
 }
 
+void ExtensionHelper::DidFinishDocumentLoad(WebLocalFrame* frame) {
+  dispatcher_->DidFinishDocumentLoad(frame);
+}
+
 void ExtensionHelper::DraggableRegionsChanged(blink::WebFrame* frame) {
   blink::WebVector<blink::WebDraggableRegion> webregions =
       frame->document().draggableRegions();

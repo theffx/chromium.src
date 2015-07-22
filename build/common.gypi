@@ -91,6 +91,7 @@
           # based on 'buildtype' (i.e. we don't care about saving symbols for
           # non-Official # builds).
           'buildtype%': 'Dev',
+          'nwjs_sdk%': 0,
 
           # Override branding to select the desired branding flavor.
           'branding%': 'Chromium',
@@ -148,6 +149,7 @@
         'enable_viewport%': '<(enable_viewport)',
         'enable_hidpi%': '<(enable_hidpi)',
         'buildtype%': '<(buildtype)',
+        'nwjs_sdk%': '<(nwjs_sdk)',
         'branding%': '<(branding)',
         'branding_path_component%': '<(branding)',
         'host_arch%': '<(host_arch)',
@@ -224,7 +226,7 @@
 
           # Enable the OpenSSL backend on Mac OS and Windows.
           ['OS=="mac" or OS=="win"', {
-            'use_openssl%': 1,
+            'use_openssl%': 0,
           }],
 
           # Enable App Launcher everywhere but mobile.
@@ -304,6 +306,7 @@
       'enable_app_list%': '<(enable_app_list)',
       'use_default_render_theme%': '<(use_default_render_theme)',
       'buildtype%': '<(buildtype)',
+      'nwjs_sdk%': '<(nwjs_sdk)',
       'branding%': '<(branding)',
       'branding_path_component%': '<(branding_path_component)',
       'arm_version%': '<(arm_version)',
@@ -365,7 +368,7 @@
       'use_third_party_translations%': 0,
 
       # Remoting compilation is enabled by default. Set to 0 to disable.
-      'remoting%': 1,
+      'remoting%': 0,
 
       # Configuration policy is enabled by default. Set to 0 to disable.
       'configuration_policy%': 1,
@@ -376,7 +379,7 @@
       # reporting features for use with Data Saver on Mobile, and 3 enables
       # extended mobile protection via an external API.  When 3 is fully
       # deployed, it will replace 2.
-      'safe_browsing%': 1,
+      'safe_browsing%': 0,
 
       # Web speech is enabled by default. Set to 0 to disable.
       'enable_web_speech%': 1,
@@ -500,7 +503,7 @@
       'enable_extensions%': 1,
 
       # Enable Google Now.
-      'enable_google_now%': 1,
+      'enable_google_now%': 0,
 
       # Enable basic printing support and UI.
       'enable_basic_printing%': 1,
@@ -583,7 +586,7 @@
       # See http://code.google.com/p/chromium/wiki/Clang for details.
       # If this is set, clang is used as both host and target compiler in
       # cross-compile builds.
-      'clang%': 0,
+      'clang%': 1,
 
       # Use experimental lld linker instead of the platform's default linker.
       'use_lld%': 0,
@@ -1063,7 +1066,7 @@
       'google_default_client_id%': '',
       'google_default_client_secret%': '',
       # Native Client is enabled by default.
-      'disable_nacl%': '0',
+      'disable_nacl%': '1',
 
       # Sets the default version name and code for Android app, by default we
       # do a developer build.
@@ -1072,6 +1075,7 @@
     },
 
     # Copy conditionally-set variables out one scope.
+    'nwjs_sdk%': '<(nwjs_sdk)',
     'branding%': '<(branding)',
     'branding_path_component%': '<(branding_path_component)',
     'buildtype%': '<(buildtype)',
@@ -1255,7 +1259,7 @@
 
     # The default value for mac_strip in target_defaults. This cannot be
     # set there, per the comment about variable% in a target_defaults.
-    'mac_strip_release%': 0,
+    'mac_strip_release%': 1,
 
     # Set to 1 to enable java code coverage. Instruments classes during build
     # to produce .ec files during runtime.
@@ -1350,12 +1354,12 @@
     'profiling_full_stack_frames%': '0',
 
     # And if we want to dump symbols for Breakpad-enabled builds.
-    'linux_dump_symbols%': 0,
+    'linux_dump_symbols%': 1,
     # And if we want to strip the binary after dumping symbols.
     'linux_strip_binary%': 0,
     # If we want stack unwind support for backtrace().
     'debug_unwind_tables%': 1,
-    'release_unwind_tables%': 1,
+    'release_unwind_tables%': 0,
 
     # Override where to find binutils
     'binutils_version%': 0,
@@ -1514,6 +1518,12 @@
     'libjpeg_turbo_gyp_path': '<(DEPTH)/third_party/libjpeg_turbo/libjpeg.gyp',
 
     'conditions': [
+      ['nwjs_sdk!=1', {
+        'locales==': [ 'en-US', ],
+      }],
+      ['nwjs_sdk==1', {
+        'locales==': [ 'en-US', ],
+      }],
       ['buildtype=="Official"', {
         # Continue to embed build meta data in Official builds, basically the
         # time it was built.
@@ -1895,7 +1905,7 @@
           ['branding=="Chrome"', {
             'mac_product_name%': 'Google Chrome',
           }, { # else: branding!="Chrome"
-            'mac_product_name%': 'Chromium',
+            'mac_product_name%': 'nwjs',
           }],
           # Official mac builds require a specific OS X SDK, but iOS and
           # non-official mac builds do not.
@@ -1935,7 +1945,7 @@
           }],
           ['component=="static_library"', {
             # Turn on multiple dll by default on Windows when in static_library.
-            'chrome_multiple_dll%': 1,
+            'chrome_multiple_dll%': 0,
           }],
           ['asan==1 or syzyasan==1', {
             'win_use_allocator_shim%': 0,
@@ -2014,6 +2024,9 @@
       }],
 
       # Set up -D and -E flags passed into grit.
+      ['nwjs_sdk==1', {
+        'grit_defines': ['-D', 'nwjs_sdk'],
+      }],
       ['branding=="Chrome"', {
         # TODO(mmoss) The .grd files look for _google_chrome, but for
         # consistency they should look for google_chrome_build like C++.
@@ -2599,6 +2612,9 @@
           '<(DEPTH)/base/allocator/allocator.gyp:type_profiler',
         ],
       }],
+      ['nwjs_sdk==1', {
+        'defines': ['NWJS_SDK'],
+      }],
       ['branding=="Chrome"', {
         'defines': ['GOOGLE_CHROME_BUILD'],
       }, {  # else: branding!="Chrome"
@@ -3102,7 +3118,7 @@
               # non-chromium code, but for now, focus on chromium_code==1 code.
               4456, 4457, 4458, 4459,
 
-              4800,
+              4800, 4275
             ],
             'msvs_settings': {
               'VCCLCompilerTool': {

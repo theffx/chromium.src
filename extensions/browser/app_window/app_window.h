@@ -33,6 +33,10 @@ class BrowserContext;
 class WebContents;
 }
 
+namespace nw {
+class Menu;
+}
+
 namespace extensions {
 
 class AppDelegate;
@@ -347,6 +351,7 @@ class AppWindow : public content::WebContentsDelegate,
   void SetAppWindowContentsForTesting(scoped_ptr<AppWindowContents> contents) {
     app_window_contents_ = contents.Pass();
   }
+  nw::Menu* menu_;
 
  protected:
   ~AppWindow() override;
@@ -356,6 +361,10 @@ class AppWindow : public content::WebContentsDelegate,
   friend class PlatformAppBrowserTest;
 
   // content::WebContentsDelegate implementation.
+  void LoadingStateChanged(content::WebContents* source,
+                           bool to_different_document) override;
+  content::JavaScriptDialogManager* GetJavaScriptDialogManager(
+      content::WebContents* source) override;
   void CloseContents(content::WebContents* contents) override;
   bool ShouldSuppressDialogs(content::WebContents* source) override;
   content::ColorChooser* OpenColorChooser(

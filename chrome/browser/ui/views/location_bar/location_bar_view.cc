@@ -950,6 +950,8 @@ void LocationBarView::OnDefaultZoomLevelChanged() {
 }
 
 void LocationBarView::RefreshTranslateIcon() {
+  return;
+#if 0
   if (!TranslateService::IsTranslateBubbleEnabled())
     return;
 
@@ -964,6 +966,7 @@ void LocationBarView::RefreshTranslateIcon() {
   translate_icon_view_->SetToggled(language_state.IsPageTranslated());
   if (!enabled)
     TranslateBubbleView::CloseBubble();
+#endif
 }
 
 bool LocationBarView::RefreshManagePasswordsIconView() {

@@ -100,6 +100,7 @@ class Dispatcher : public content::RenderProcessObserver,
                                 int world_id);
 
   void DidCreateDocumentElement(blink::WebFrame* frame);
+  void DidFinishDocumentLoad(blink::WebFrame* frame);
 
   void DidMatchCSS(
       blink::WebFrame* frame,

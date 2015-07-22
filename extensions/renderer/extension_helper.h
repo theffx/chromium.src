@@ -54,6 +54,7 @@ class ExtensionHelper
   // RenderViewObserver implementation.
   bool OnMessageReceived(const IPC::Message& message) override;
   void DidCreateDocumentElement(blink::WebLocalFrame* frame) override;
+  void DidFinishDocumentLoad(blink::WebLocalFrame* frame) override;
   void DidMatchCSS(
       blink::WebLocalFrame* frame,
       const blink::WebVector<blink::WebString>& newly_matching_selectors,

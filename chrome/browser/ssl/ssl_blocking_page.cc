@@ -671,8 +671,9 @@ void SSLBlockingPage::FinishCertCollection() {
       LOG(ERROR) << "Failed to serialize certificate report.";
       return;
     }
-
+#if 0 //FIXME
     ssl_cert_reporter_->ReportInvalidCertificateChain(serialized_report);
+#endif
   }
 }
 

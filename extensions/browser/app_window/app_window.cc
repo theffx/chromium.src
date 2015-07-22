@@ -50,6 +50,9 @@
 #include "extensions/browser/pref_names.h"
 #endif
 
+#include "extensions/browser/extension_host.h"
+#include "extensions/common/extension_messages.h"
+
 using content::BrowserContext;
 using content::ConsoleMessageLevel;
 using content::WebContents;
@@ -243,6 +246,21 @@ AppWindow::AppWindow(BrowserContext* context,
   ExtensionsBrowserClient* client = ExtensionsBrowserClient::Get();
   CHECK(!client->IsGuestSession(context) || context->IsOffTheRecord())
       << "Only off the record window may be opened in the guest mode.";
+}
+
+void AppWindow::LoadingStateChanged(content::WebContents* source, bool to_different_document) {
+  content::RenderViewHost* rvh = web_contents()->GetRenderViewHost();
+  base::ListValue args;
+  if (source->IsLoading())
+    args.AppendString("loading");
+  else
+    args.AppendString("loaded");
+  rvh->Send(new ExtensionMsg_MessageInvoke(rvh->GetRoutingID(),
+                                           extension_id(),
+                                           "nw.Window",
+                                           "LoadingStateChanged",
+                                           args,
+                                           false));
 }
 
 void AppWindow::Init(const GURL& url,
@@ -851,7 +869,7 @@ void AppWindow::CloseContents(WebContents* contents) {
 }
 
 bool AppWindow::ShouldSuppressDialogs(WebContents* source) {
-  return true;
+  return false;
 }
 
 content::ColorChooser* AppWindow::OpenColorChooser(
@@ -1065,6 +1083,13 @@ SkRegion* AppWindow::RawDraggableRegionsToSkRegion(
         region.draggable ? SkRegion::kUnion_Op : SkRegion::kDifference_Op);
   }
   return sk_region;
+}
+
+content::JavaScriptDialogManager* AppWindow::GetJavaScriptDialogManager(
+    WebContents* source) {
+  ExtensionHost* host = ProcessManager::Get(browser_context())
+                            ->GetBackgroundHostForExtension(extension_id());
+  return host->GetJavaScriptDialogManager(source);
 }
 
 }  // namespace extensions
